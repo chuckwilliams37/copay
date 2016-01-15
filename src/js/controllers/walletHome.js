@@ -1095,12 +1095,33 @@ angular.module('copayApp.controllers').controller('walletHomeController', functi
     $rootScope.modalOpened = true;
     var self = this;
     var fc = profileService.focusedClient;
-    var ModalInstanceCtrl = function($scope, $filter, $log, $modalInstance) {
+    var ModalInstanceCtrl = function($scope, $filter, $log, $modalInstance, bitrefill) {
       $scope.btx = btx;
       $scope.settings = walletSettings;
       $scope.color = fc.backgroundColor;
       $scope.copayerId = fc.credentials.copayerId;
-      $scope.isShared = fc.credentials.n > 1; 
+      $scope.isShared = fc.credentials.n > 1;
+      $scope.isBitrefill = btx.customData && btx.customData.bitrefillOrderId; 
+
+      if ($scope.isBitrefill) {
+        $scope.orderId = btx.customData.bitrefillOrderId;
+        $scope.deliveryStatus = "N/A";
+        bitrefill.orderStatus(btx.customData.bitrefillOrderId, function(err, status) {
+          if (err) {
+            return;
+          }
+          if (status.delivered) {
+            $scope.deliveryStatus = "delivered";
+          } else if (!status.paymentRecieved && !status.failed) {
+            $scope.deliveryStatus = "awaiting payment";
+          } else if (status.failed) {
+            $scope.deliveryStatus = "failed";
+          } else {
+            $scope.deliveryStatus = "in progress";
+          }
+          
+        });
+      }
 
       $scope.getAlternativeAmount = function() {
         var satToBtc = 1 / 100000000;
