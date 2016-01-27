@@ -153,6 +153,9 @@ if [ ! -d $PROJECT ]; then
 
   cordova plugin add cordova-plugin-disable-bitcode
   checkOK
+  
+  cordova plugin add cordova-plugin-sim
+  checkOK
 
 fi
 
